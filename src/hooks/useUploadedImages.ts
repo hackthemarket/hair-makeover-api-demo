@@ -72,19 +72,7 @@ export function useUploadedImages() {
     return null;
   };
 
-  const deleteImage = async (id: string) => {
-    try {
-      const response = await fetch(`/api/images?id=${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setImages(prev => prev.filter(img => img.id !== id));
-      }
-    } catch (error) {
-      console.error('Error deleting image:', error);
-    }
-  };
+  // Delete functionality removed - images are permanent
 
   useEffect(() => {
     fetchImages();
@@ -94,7 +82,6 @@ export function useUploadedImages() {
     images,
     isLoading,
     uploadImage,
-    deleteImage,
     refetch: fetchImages,
   };
 }

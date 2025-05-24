@@ -1,5 +1,4 @@
 import { useUploadedImages } from '@/hooks/useUploadedImages';
-import { Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
 
@@ -13,7 +12,7 @@ export function ImagePicker({ onImageSelected }: ImagePickerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const { images: uploadedImages, deleteImage } = useUploadedImages();
+  const { images: uploadedImages } = useUploadedImages();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -241,7 +240,7 @@ export function ImagePicker({ onImageSelected }: ImagePickerProps) {
               </p>
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {uploadedImages.slice(0, 5).map(image => (
-                  <div key={image.id} className="group relative">
+                  <div key={image.id} className="relative">
                     <button
                       onClick={() => handleSelectUploaded(image)}
                       className="h-18 w-18 cursor-pointer overflow-hidden rounded-xl"
@@ -251,15 +250,6 @@ export function ImagePicker({ onImageSelected }: ImagePickerProps) {
                         alt={image.filename}
                         className="h-full w-full rounded-xl object-cover"
                       />
-                    </button>
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        deleteImage(image.id);
-                      }}
-                      className="absolute -top-1 -right-1 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      <Trash2 size={12} />
                     </button>
                   </div>
                 ))}

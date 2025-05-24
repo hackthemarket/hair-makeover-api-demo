@@ -1,11 +1,11 @@
 'use client';
 
 import { useGeneratedImages } from '@/hooks/useGeneratedImages';
-import { Download, Trash2 } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { Button } from '../ui/button';
 
 export function Gallery() {
-  const { images, isLoading, deleteImage, refetch } = useGeneratedImages();
+  const { images, isLoading, refetch } = useGeneratedImages();
 
   console.log('🖼️ Gallery rendered with images:', images.length);
 
@@ -73,7 +73,7 @@ export function Gallery() {
             </div>
 
             {/* Overlay with actions */}
-            <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-lg bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
               <Button
                 size="sm"
                 variant="secondary"
@@ -81,14 +81,6 @@ export function Gallery() {
                 className="h-8 w-8 p-0"
               >
                 <Download size={14} />
-              </Button>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => deleteImage(image.id)}
-                className="h-8 w-8 p-0"
-              >
-                <Trash2 size={14} />
               </Button>
             </div>
 

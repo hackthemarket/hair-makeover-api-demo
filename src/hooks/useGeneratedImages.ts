@@ -37,19 +37,7 @@ export function useGeneratedImages() {
     }
   };
 
-  const deleteImage = async (id: string) => {
-    try {
-      const response = await fetch(`/api/gallery?id=${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setImages(prev => prev.filter(img => img.id !== id));
-      }
-    } catch (error) {
-      console.error('Error deleting generated image:', error);
-    }
-  };
+  // Delete functionality removed - images are permanent
 
   // Fetch images on mount
   useEffect(() => {
@@ -67,7 +55,6 @@ export function useGeneratedImages() {
   return {
     images,
     isLoading,
-    deleteImage,
     refetch: fetchImages,
   };
 }
