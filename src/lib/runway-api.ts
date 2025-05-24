@@ -2,24 +2,24 @@ import { RUNWAY_API_URL, RUNWAY_API_VERSION } from '@/constants';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
-type RunwayRequestOptions = {
+type ImageApiRequestOptions = {
   method?: HttpMethod;
   body?: unknown;
   additionalHeaders?: Record<string, string>;
 };
 
 /**
- * Utility function to make Runway API requests with proper headers
+ * Utility function to make image generation API requests with proper headers
  */
-export async function runwayApiRequest<T = unknown>(
+export async function imageApiRequest<T = unknown>(
   endpoint: string,
   apiKey: string,
-  options: RunwayRequestOptions = {}
+  options: ImageApiRequestOptions = {}
 ): Promise<T> {
   const { method = 'GET', body, additionalHeaders = {} } = options;
 
   if (!apiKey) {
-    throw new Error('API key is required for Runway API requests');
+    throw new Error('API key is required for image generation API requests');
   }
 
   const headers = {
@@ -54,6 +54,14 @@ export async function runwayApiRequest<T = unknown>(
         errorData = { error: response.statusText || 'Unknown error' };
       }
     }
+
+    console.error('Runway API Error:', {
+      url,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      errorData,
+    });
 
     throw new Error(
       JSON.stringify({

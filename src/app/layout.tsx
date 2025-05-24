@@ -1,12 +1,13 @@
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { GalleryRefreshProvider } from '@/contexts/GalleryRefreshContext';
 import { TextToImageProvider } from '@/contexts/TextToImageContext';
 import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Runway Hair Makeover',
-  description: "Generate hair makeovers using Runway's API",
+  title: 'Hair Makeover Generator',
+  description: 'Generate hair makeovers with AI',
 };
 
 export default function RootLayout({
@@ -16,14 +17,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-[#EFEEE6]">
-        <TextToImageProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            {children}
-            <Footer />
-          </div>
-        </TextToImageProvider>
+      <body className="bg-background">
+        <GalleryRefreshProvider>
+          <TextToImageProvider>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              {children}
+              <Footer />
+            </div>
+          </TextToImageProvider>
+        </GalleryRefreshProvider>
       </body>
     </html>
   );

@@ -1,8 +1,10 @@
+import { useUploadedImages } from '@/hooks/useUploadedImages';
+import { Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
 
 type ImagePickerProps = {
-  onImageSelected: (file: File) => void;
+  onImageSelected: (file: File, existingId?: string) => void;
 };
 
 export function ImagePicker({ onImageSelected }: ImagePickerProps) {
@@ -11,10 +13,12 @@ export function ImagePicker({ onImageSelected }: ImagePickerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const { images: uploadedImages, deleteImage } = useUploadedImages();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      onImageSelected(e.target.files[0]);
+      const file = e.target.files[0];
+      onImageSelected(file);
     }
   };
 
@@ -37,6 +41,18 @@ export function ImagePicker({ onImageSelected }: ImagePickerProps) {
       onImageSelected(file);
     } catch (error) {
       console.error('Error selecting preset image:', error);
+    }
+  };
+
+  const handleSelectUploaded = async (uploadedImage: (typeof uploadedImages)[0]) => {
+    try {
+      // Fetch the uploaded image file
+      const response = await fetch(uploadedImage.file_path);
+      const imageBlob = await response.blob();
+      const file = new File([imageBlob], uploadedImage.filename, { type: 'image/jpeg' });
+      onImageSelected(file, uploadedImage.id);
+    } catch (error) {
+      console.error('Error selecting uploaded image:', error);
     }
   };
 
@@ -73,7 +89,7 @@ export function ImagePicker({ onImageSelected }: ImagePickerProps) {
       ctx.scale(-1, 1);
 
       ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(blob => {
+      canvas.toBlob(async blob => {
         if (blob) {
           const file = new File([blob], `camera-capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
           onImageSelected(file);
@@ -217,22 +233,59 @@ export function ImagePicker({ onImageSelected }: ImagePickerProps) {
           </Button>
         </div> */}
 
-        <div className="flex flex-col gap-2">
-          <p className="text-center text-sm font-normal text-[#666E7A]">Or, choose from below</p>
-          <div className="flex items-center justify-center gap-2">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <button
-                key={`preset-${index}`}
-                onClick={() => handleSelectPreset(`/images/examples/${index + 1}.jpeg`, index)}
-                className="h-18 w-18 cursor-pointer rounded-xl"
-              >
-                <img
-                  src={`/images/examples/${index + 1}.jpeg`}
-                  alt=""
-                  className="h-full w-full rounded-xl object-cover"
-                />
-              </button>
-            ))}
+        <div className="flex flex-col gap-4">
+          {uploadedImages.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <p className="text-muted-foreground text-center text-sm font-normal">
+                Previously uploaded
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {uploadedImages.slice(0, 5).map(image => (
+                  <div key={image.id} className="group relative">
+                    <button
+                      onClick={() => handleSelectUploaded(image)}
+                      className="h-18 w-18 cursor-pointer overflow-hidden rounded-xl"
+                    >
+                      <img
+                        src={image.file_path}
+                        alt={image.filename}
+                        className="h-full w-full rounded-xl object-cover"
+                      />
+                    </button>
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        deleteImage(image.id);
+                      }}
+                      className="absolute -top-1 -right-1 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <p className="text-muted-foreground text-center text-sm font-normal">
+              Or, choose from examples
+            </p>
+            <div className="flex items-center justify-center gap-2">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <button
+                  key={`preset-${index}`}
+                  onClick={() => handleSelectPreset(`/images/examples/${index + 1}.jpeg`, index)}
+                  className="h-18 w-18 cursor-pointer rounded-xl"
+                >
+                  <img
+                    src={`/images/examples/${index + 1}.jpeg`}
+                    alt=""
+                    className="h-full w-full rounded-xl object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

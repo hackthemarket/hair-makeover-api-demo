@@ -1,5 +1,6 @@
 'use client';
 
+import { Gallery } from '@/components/demo/Gallery';
 import { HairstyleSelector } from '@/components/demo/HairstyleSelector';
 import { ImagePicker } from '@/components/demo/ImagePicker';
 import { ImagePreview } from '@/components/demo/ImagePreview';
@@ -50,8 +51,9 @@ const hairstyles = [
 ];
 
 export function DemoContent() {
-  const { image, imagePreview, handleImageSelection, resetImage } = useImageUpload();
-  const { isLoading, results, generateImage, resetResults } = useTextToImageContext();
+  const { image, imagePreview, handleImageSelection, resetImage, uploadedImageId } =
+    useImageUpload();
+  const { isLoading, results, error, generateImage, resetResults } = useTextToImageContext();
   const [selectedHairstyle, setSelectedHairstyle] = useState<number>(-1);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -61,7 +63,13 @@ export function DemoContent() {
     const hairstyleData = hairstyles[index];
 
     if (image && hairstyleData) {
-      generateImage(image, hairstyleData.imageUrl, hairstyleData.prompt);
+      generateImage(
+        image,
+        hairstyleData.imageUrl,
+        hairstyleData.prompt,
+        selectedHairstyle,
+        uploadedImageId || undefined
+      );
     }
   };
 
@@ -70,15 +78,17 @@ export function DemoContent() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <div className="mx-auto flex flex-col items-center gap-2.5">
-        <h2 className="text-3xl font-normal text-[#0C0C0C] sm:text-4xl">Hair Makeover Generator</h2>
-        <p className="text-base font-normal text-[#7C7C7C] sm:text-lg">
+        <h2 className="text-foreground text-3xl font-normal sm:text-4xl">
+          Hair Makeover Generator
+        </h2>
+        <p className="text-muted-foreground text-base font-normal sm:text-lg">
           Try out different hairstyles with just one selfie.
         </p>
       </div>
 
-      <div className="flex flex-col rounded-lg border border-[#D0D4D4] bg-white">
+      <div className="border-border bg-card flex flex-col rounded-lg border">
         {isLoading ? (
           <LoadingState onCancel={() => handleReset()} />
         ) : (
@@ -89,7 +99,7 @@ export function DemoContent() {
               <>
                 <div className="flex h-full flex-col items-center justify-between py-8 md:flex-row">
                   <div className="mb-8 flex w-full flex-1 flex-col gap-4 px-6 md:mb-0 md:w-auto md:px-12">
-                    <p className="text-center text-xs font-medium text-[#0C0C0C] uppercase">
+                    <p className="text-foreground text-center text-xs font-medium uppercase">
                       Add a selfie
                     </p>
                     {imagePreview ? (
@@ -98,15 +108,15 @@ export function DemoContent() {
                       <ImagePicker onImageSelected={handleImageSelection} />
                     )}
                   </div>
-                  <div className="flex w-full flex-1 flex-col gap-4 border-[#E4E5E6] px-6 md:w-auto md:border-l md:px-12">
-                    <p className="text-center text-xs font-medium text-[#0C0C0C] uppercase">
+                  <div className="border-border flex w-full flex-1 flex-col gap-4 px-6 md:w-auto md:border-l md:px-12">
+                    <p className="text-foreground text-center text-xs font-medium uppercase">
                       Select hairstyle
                     </p>
                     <HairstyleSelector onSelect={setSelectedHairstyle} />
                   </div>
                 </div>
 
-                <div className="flex justify-end border-t border-[#E4E5E6] px-4 py-4 sm:px-8">
+                <div className="border-border flex justify-end border-t px-4 py-4 sm:px-8">
                   <Button
                     onClick={handleSubmit}
                     disabled={!image || selectedHairstyle === -1}
@@ -119,6 +129,30 @@ export function DemoContent() {
             )}
           </>
         )}
+      </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="border-border bg-destructive/10 border-destructive/20 flex flex-col rounded-lg border p-4">
+          <div className="flex items-center gap-2">
+            <div className="text-destructive">⚠️</div>
+            <h3 className="text-destructive font-medium">Generation Failed</h3>
+          </div>
+          <p className="text-destructive/80 mt-2 text-sm">{error}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetResults}
+            className="mt-3 w-fit self-start"
+          >
+            Try Again
+          </Button>
+        </div>
+      )}
+
+      {/* Gallery Section */}
+      <div className="border-border bg-card flex flex-col rounded-lg border p-6">
+        <Gallery />
       </div>
     </div>
   );

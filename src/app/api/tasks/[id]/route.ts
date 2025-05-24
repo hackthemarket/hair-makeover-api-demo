@@ -1,4 +1,4 @@
-import { runwayApiRequest } from '@/lib/runway-api';
+import { imageApiRequest } from '@/lib/runway-api';
 import { withApiAuth } from '@/middleware/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -9,16 +9,33 @@ async function getTaskHandler(
 ) {
   try {
     const { id: taskId } = await params;
+    console.log('🔍 Task status API called for task:', taskId);
 
     if (!taskId) {
+      console.error('❌ Task ID is missing');
       return NextResponse.json({ error: 'Task ID is required' }, { status: 400 });
     }
 
-    const data = await runwayApiRequest(`/v1/tasks/${taskId}`, apiKey);
+    console.log('📡 Fetching task status from Runway API...');
+    const data = await imageApiRequest(`/v1/tasks/${taskId}`, apiKey);
+    console.log('✅ Task status received:', data);
+
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error fetching task status:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('💥 Error fetching task status:', error);
+
+    let errorMessage = 'Internal server error';
+    if (error instanceof Error) {
+      try {
+        const parsedError = JSON.parse(error.message);
+        console.error('📄 Parsed task status error:', parsedError);
+        errorMessage = parsedError.details?.error || parsedError.statusText || error.message;
+      } catch {
+        errorMessage = error.message;
+      }
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -34,7 +51,7 @@ async function cancelTaskHandler(
       return NextResponse.json({ error: 'Task ID is required' }, { status: 400 });
     }
 
-    const data = await runwayApiRequest(`/v1/tasks/${taskId}`, apiKey, {
+    const data = await imageApiRequest(`/v1/tasks/${taskId}`, apiKey, {
       method: 'DELETE',
     });
 
