@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 async function getTaskHandler(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
   apiKey: string
 ) {
   try {
@@ -24,7 +24,7 @@ async function getTaskHandler(
 
 async function cancelTaskHandler(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
   apiKey: string
 ) {
   try {
@@ -59,7 +59,7 @@ async function cancelTaskHandler(
             );
           }
         }
-      } catch (e) {
+      } catch {
         errorResponse = { error: error.message || 'Internal server error' };
       }
     }
@@ -69,7 +69,7 @@ async function cancelTaskHandler(
 
 type NextRouteHandler = (
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) => Promise<NextResponse>;
 
 export const GET: NextRouteHandler = withApiAuth(getTaskHandler);

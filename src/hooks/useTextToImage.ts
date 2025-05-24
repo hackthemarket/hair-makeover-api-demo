@@ -212,7 +212,7 @@ async function pollForCompletion(
               });
             }
           });
-        } catch (error) {
+        } catch {
           // If the promise was rejected due to an abort, break the polling loop
           console.log('Polling delay aborted');
           return [];

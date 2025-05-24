@@ -4,14 +4,14 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 type RunwayRequestOptions = {
   method?: HttpMethod;
-  body?: any;
+  body?: unknown;
   additionalHeaders?: Record<string, string>;
 };
 
 /**
  * Utility function to make Runway API requests with proper headers
  */
-export async function runwayApiRequest<T = any>(
+export async function runwayApiRequest<T = unknown>(
   endpoint: string,
   apiKey: string,
   options: RunwayRequestOptions = {}
@@ -46,11 +46,11 @@ export async function runwayApiRequest<T = any>(
     let errorData;
     try {
       errorData = await response.json();
-    } catch (e) {
+    } catch {
       // If the response is not JSON, use the status text or response text as the error
       try {
         errorData = { error: (await response.text()) || response.statusText };
-      } catch (textError) {
+      } catch {
         errorData = { error: response.statusText || 'Unknown error' };
       }
     }
@@ -72,7 +72,7 @@ export async function runwayApiRequest<T = any>(
   try {
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch {
     throw new Error('Failed to parse response');
   }
 }
